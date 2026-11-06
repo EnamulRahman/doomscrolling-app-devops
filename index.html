@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>DevOps Scroll</title>
-  <meta name="description" content="Doomscroll your way through DevOps: learn modules, quiz cards and interview scenarios built around the Memos AWS project." />
+  <meta name="description" content="A doomscrolling DevOps course: from absolute beginner to building the Memos platform on AWS, with diagrams, a hands-on build lab, quizzes and interview scenarios." />
   <meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -22,6 +22,7 @@
 
   <main>
     <section class="view feed" id="view-learn" data-tab="learn" tabindex="-1" aria-label="Learn"></section>
+    <section class="view feed" id="view-lab" data-tab="lab" tabindex="-1" aria-label="Build Lab" hidden></section>
     <section class="view feed" id="view-quiz" data-tab="quiz" tabindex="-1" aria-label="Quiz" hidden></section>
     <section class="view feed" id="view-scen" data-tab="scen" tabindex="-1" aria-label="Scenarios" hidden></section>
     <section class="view" id="view-news" data-tab="news" aria-label="News" hidden></section>
@@ -29,6 +30,7 @@
 
   <nav class="tabbar" aria-label="Sections">
     <button type="button" data-tab="learn"><span class="ti">📚</span><span>Learn</span></button>
+    <button type="button" data-tab="lab"><span class="ti">🛠️</span><span>Lab</span></button>
     <button type="button" data-tab="quiz"><span class="ti">🧠</span><span>Quiz</span></button>
     <button type="button" data-tab="scen"><span class="ti">🎯</span><span>Scenarios</span></button>
     <button type="button" data-tab="news"><span class="ti">📰</span><span>News</span></button>
@@ -42,9 +44,11 @@
     <div class="sheet-body" id="sheetBody"></div>
   </dialog>
 
+  <script src="data/curriculum.js"></script>
+  <script src="data/mcq.js"></script>
+  <script src="data/scen.js"></script>
+  <script src="data/lab.js"></script>
   <script src="data/learn.js"></script>
-  <script src="data/quiz.js"></script>
-  <script src="data/scenarios.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
