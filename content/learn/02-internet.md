@@ -101,7 +101,7 @@ An address plus a port, such as `10.0.3.25:8081`, is called a **socket**.
 ## Opening a website, step by step
 
 ### What happens when you type a URL
-Typing `https://tm.myegh.com` sets off a chain of steps, and each one is a topic in this course:
+Typing `https://memos.example.com` sets off a chain of steps, and each one is a topic in this course:
 
 ```mermaid
 sequenceDiagram
@@ -109,7 +109,7 @@ sequenceDiagram
   participant D as DNS
   participant L as Load balancer
   participant A as Memos app
-  B->>D: 1. what IP is tm.myegh.com?
+  B->>D: 1. what IP is memos.example.com?
   D-->>B: 2. it's 34.x.x.x
   B->>L: 3. TCP connect to port 443
   B->>L: 4. TLS handshake (check certificate)
@@ -121,7 +121,7 @@ sequenceDiagram
 
 ### Reading a URL
 ```output
-https://tm.myegh.com:443/api/v1/memos?limit=10
+https://memos.example.com:443/api/v1/memos?limit=10
 └─┬─┘   └─────┬────┘ └┬┘ └─────┬─────┘ └──┬───┘
 scheme     host     port    path      query
 ```
@@ -136,7 +136,7 @@ HTTP is plain text with a fixed shape. The client sends a **method** and a **pat
 
 ```output
 GET /healthz HTTP/1.1          ← request line
-Host: tm.myegh.com              ← headers
+Host: memos.example.com              ← headers
 
 HTTP/1.1 200 OK                 ← status line
 Content-Type: text/plain
@@ -163,7 +163,7 @@ Common methods: **GET** (read), **POST** (create), **PUT/PATCH** (update), **DEL
 - [ ] The DNS lookup failed
 > 403 is a **4xx client** error: the request reached the server, which decided you aren't allowed. A crash would be 5xx, a missing page 404, and a DNS failure never reaches the server at all.
 
-? What does the ALB in Memos send back when someone visits `http://tm.myegh.com`?
+? What does the ALB in Memos send back when someone visits `http://memos.example.com`?
 - [ ] 200 OK with the page
 - [x] 301 redirect to the https:// address
 - [ ] 404 Not Found

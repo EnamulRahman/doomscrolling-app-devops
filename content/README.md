@@ -27,14 +27,14 @@ summary: One line shown on the cover card.
 ### Card title
 Short text, one idea per card. **Bold** the key terms.
 
-> 🔧 **In Memos:** a note tying the idea to the project.
+> 🔧 **In Memos:** a note tying the idea to the example project.
 
 ```mermaid caption="Optional caption"
 flowchart LR
   A --> B
 ```
 
-```hcl file=infra/main.tf        ← adds a file header that links to memos-aws-infra
+```hcl file=infra/main.tf        ← adds a file-name header to the code block
 resource "aws_vpc" "main" { … }
 ```
 
@@ -57,7 +57,7 @@ source: tech-vault         # default for the file
 level: Beginner            # default for the file
 ---
 
-@ level: Intermediate · source: My guide     ← optional, applies to the next question only
+@ level: Intermediate · source: Revision notes     ← optional, applies to the next question only
 ? Question (can include ```code``` or ```mermaid``` below this line)
 - [ ] option
 - [x] correct option

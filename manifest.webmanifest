@@ -1,7 +1,7 @@
 {
   "name": "DevOps Scroll",
   "short_name": "DevOps Scroll",
-  "description": "Doomscroll DevOps: learn modules, quiz cards and interview scenarios built around my Memos AWS project.",
+  "description": "A doomscrolling DevOps course: learn, build an example app on AWS with Docker, Terraform and CI/CD, then quiz yourself and practise interview scenarios.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

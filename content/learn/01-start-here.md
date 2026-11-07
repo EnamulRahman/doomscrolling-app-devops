@@ -101,12 +101,12 @@ flowchart BT
 ## The project you'll build
 
 ### Meet Memos
-**Memos** is an open-source note-taking web app (Go backend, React frontend). In this course you take its code and run it on AWS the way a real company would, live at **tm.myegh.com**.
+**Memos** is an open-source note-taking web app (Go backend, React frontend). In this course you take its code and run it on AWS the way a real company would, live at **memos.example.com**.
 
 By the end you'll understand every box in this picture, and be able to build it from an empty AWS account. The **Build Lab** tab walks you through it step by step.
 
 ### The finished architecture
-```mermaid caption="What a request to tm.myegh.com passes through"
+```mermaid caption="What a request to memos.example.com passes through"
 flowchart TB
   U([👤 User]) -->|HTTPS| R53[Route 53<br/>DNS]
   R53 --> ALB

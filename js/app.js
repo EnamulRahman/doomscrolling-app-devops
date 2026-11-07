@@ -1,5 +1,5 @@
 // DevOps Scroll — a doomscrolling course from absolute beginner to DevOps engineer, built around the
-// Memos AWS project. Content is generated from content/*.md by scripts/build_content.py.
+// open-source Memos app as the worked example. Content is generated from content/*.md by scripts/build_content.py.
 (() => {
   "use strict";
 
@@ -7,12 +7,7 @@
   const MCQ = window.MCQ || [];
   const SCEN = window.SCEN || [];
   const LAB = window.LAB || [];
-  const GUIDES = (window.LEARN || []).map((m) => ({
-    id: "guide-" + m.id, title: m.title, level: "Reference", icon: "📖", topic: m.title, summary: m.guideTitle,
-    links: m.links, guide: true,
-    lessons: [{ title: m.guideTitle, cards: m.cards.map((c) => ({ type: "card", title: c.title + (c.part ? ` (${c.part})` : ""), blocks: c.blocks })) }],
-  }));
-  const MODULES = CUR.concat(GUIDES);
+  const MODULES = CUR;
   const STORE_KEY = "devopsscroll:v2";
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -248,8 +243,8 @@
         <h2>${esc(m.title)}</h2>
         ${m.summary ? `<p class="muted">${esc(m.summary)}</p>` : ""}
         <div class="progress"><i style="width:${pct}%"></i></div><p class="muted small">${pct}% seen</p>
-        ${m.guide ? "" : `<div class="lbl">Lessons</div><ol class="lessons">${lessons}</ol>`}
-        ${m.links && m.links.length ? `<div class="lbl">In your Memos repo</div><div class="links">${m.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">🔧 ${esc(l.label)}</a>`).join("")}</div>` : ""}
+        <div class="lbl">Lessons</div><ol class="lessons">${lessons}</ol>
+        ${m.links && m.links.length ? `<div class="lbl">Files in the example project</div><div class="links">${m.links.map((l) => `<span class="chip-file">📄 ${esc(l.label)}</span>`).join("")}</div>` : ""}
         <p class="muted">Swipe up to start ↑</p>`, "cover");
       c._learn = { m, i: -1 };
       return c;
@@ -297,7 +292,7 @@
       openSheet("Modules", (body) => {
         let last = "";
         MODULES.forEach((m, idx) => {
-          const group = m.level === "Reference" ? "📖 Reference: my original guides" : m.level;
+          const group = m.level;
           if (group !== last) { body.appendChild(el("h3", "", esc(group))); last = group; }
           const pct = this.pct(m);
           const b = el("button", "mod", `<span class="num">${m.icon}</span><span>${esc(m.title)}</span><span class="pct">${pct}%</span><div class="progress"><i style="width:${pct}%"></i></div>`);
@@ -331,7 +326,7 @@
       const missed = this.pool("missed").length;
       const defs = [{ id: "all", label: "All", n: MCQ.length }, ...(missed ? [{ id: "missed", label: "❌ Missed", n: missed }] : []),
         { id: "new", label: "🆕 New", n: this.pool("new").length },
-        { id: "s:tech-vault", label: "tech-vault", n: this.pool("s:tech-vault").length }, { id: "s:guide", label: "My guide", n: this.pool("s:guide").length },
+        { id: "s:tech-vault", label: "tech-vault", n: this.pool("s:tech-vault").length }, { id: "s:revision", label: "Revision notes", n: this.pool("s:revision").length },
         ...["Beginner", "Intermediate", "Advanced"].map((l) => ({ id: "l:" + l, label: l, n: this.pool("l:" + l).length })),
         ...this.topics().map(([t, n]) => ({ id: "t:" + t, label: t, n }))];
       toolbar.replaceChildren(stat("quizStat", `✓ ${this.session.r}/${this.session.n}`), ...chips(defs, this.filter, (id) => this.setFilter(id)));
@@ -387,7 +382,7 @@
       const c = {}; SCEN.forEach((s) => (c[s.topic] = (c[s.topic] || 0) + 1));
       const done = SCEN.filter((s) => S.scen[s.id]).length;
       const defs = [{ id: "all", label: "All", n: SCEN.length }, { id: "todo", label: "Not done", n: SCEN.length - done },
-        { id: "s:memos", label: "🔧 My Memos project", n: this.pool("s:memos").length },
+        { id: "s:example", label: "🔧 Example project", n: this.pool("s:example").length },
         ...["Junior", "Mid", "Senior"].map((l) => ({ id: "l:" + l, label: l, n: this.pool("l:" + l).length })),
         ...Object.entries(c).sort((a, b) => b[1] - a[1]).map(([t, n]) => ({ id: "t:" + t, label: t, n }))];
       toolbar.replaceChildren(stat("scenStat", `🎯 ${done}/${SCEN.length}`), ...chips(defs, this.filter, (id) => { this.filter = S.ui.scen = id; save(); this.render(); }));
@@ -404,11 +399,11 @@
     cardEl(s, i, n) {
       const prev = S.scen[s.id];
       const node = card(`
-        <div class="meta"><span class="badge ${/memos/i.test(s.source) ? "accent" : "blue"}">${/memos/i.test(s.source) ? "🔧 Memos" : esc(s.topic)}</span>${s.level ? `<span class="badge">${esc(s.level)}</span>` : ""}<span>${esc(/memos/i.test(s.source) ? s.topic : s.source)}</span><span>${i + 1}/${n}</span>${prev ? `<span class="badge ${prev === "r" ? "good" : "warn"}">${prev === "r" ? "got it" : "review"}</span>` : ""}</div>
+        <div class="meta"><span class="badge ${/example/i.test(s.source) ? "accent" : "blue"}">${/example/i.test(s.source) ? "🔧 Example project" : esc(s.topic)}</span>${s.level ? `<span class="badge">${esc(s.level)}</span>` : ""}<span>${esc(/example/i.test(s.source) ? s.topic : s.source)}</span><span>${i + 1}/${n}</span>${prev ? `<span class="badge ${prev === "r" ? "good" : "warn"}">${prev === "r" ? "got it" : "review"}</span>` : ""}</div>
         <h2>${esc(s.title)}</h2>
         <div class="body situation">${renderBlocks(s.situation)}</div>
         <div class="slot"></div>
-        ${s.links && s.links.length ? `<div class="links-after" hidden><div class="lbl">In your repo</div><div class="links">${s.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener">🔧 ${esc(l.label)}</a>`).join("")}</div></div>` : ""}`, "scen");
+        ${s.links && s.links.length ? `<div class="links-after" hidden><div class="lbl">Files involved</div><div class="links">${s.links.map((l) => `<span class="chip-file">📄 ${esc(l.label)}</span>`).join("")}</div></div>` : ""}`, "scen");
       hydrate(node.querySelector(".situation"), s.situation);
       const m = mcqEl(s, { onAnswer: (ok) => {
         S.scen[s.id] = ok ? "r" : "w"; save();
@@ -481,7 +476,7 @@
     endCard() {
       const si = this.stage, next = LAB[si + 1];
       const node = card(`<div class="big center">🎉</div><h2 class="center">Stage ${si + 1} complete</h2>
-        ${next ? `<button type="button" class="btn primary" data-next>Next stage: ${next.icon} ${esc(next.title)} →</button>` : `<p class="center">You've built the whole platform. That's the Memos project, end to end.</p>`}
+        ${next ? `<button type="button" class="btn primary" data-next>Next stage: ${next.icon} ${esc(next.title)} →</button>` : `<p class="center">You've built the whole platform: containerised with Docker, provisioned with Terraform and deployed by CI/CD. Now make it yours.</p>`}
         <button type="button" class="btn" data-list>☰ All stages</button>`);
       node.querySelector(".card-inner").classList.add("center-col");
       if (next) node.querySelector("[data-next]").onclick = () => this.open(si + 1, 0);
@@ -490,7 +485,7 @@
     },
     openSheet() {
       openSheet("Build Lab stages", (body) => {
-        body.appendChild(el("p", "muted small", "From an empty laptop to tm.myegh.com running on AWS, one step at a time."));
+        body.appendChild(el("p", "muted small", "From an empty laptop to the example app running on AWS: Docker, Terraform and CI/CD, one step at a time."));
         LAB.forEach((s, si) => {
           const d = this.stageDone(si), pct = Math.round((d / s.steps.length) * 100);
           const b = el("button", "mod", `<span class="num">${s.icon}</span><span>${si + 1}. ${esc(s.title)}</span><span class="pct">${d}/${s.steps.length}</span><div class="progress"><i style="width:${pct}%"></i></div>`);

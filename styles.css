@@ -238,3 +238,4 @@ pre.out { background: #0b0e14; color: #c9d1d9; border-color: #263043; }
 .situation { font-size: .93rem; }
 @media (max-width: 520px) { .mcq-q { font-size: .98rem; } .opt { font-size: .88rem; padding: 10px; } .tabbar { font-size: .66rem; } }
 .diagram svg { max-height: 50vh; width: auto; }
+.chip-file { font: .74rem ui-monospace, Menlo, monospace; padding: 4px 9px; border-radius: 8px; background: var(--card-2); border: 1px solid var(--line); color: var(--muted); }

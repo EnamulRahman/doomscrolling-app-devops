@@ -1,5 +1,5 @@
 ---
-source: Your Memos project
+source: Example project
 ---
 
 ## Every note disappeared overnight
@@ -32,7 +32,7 @@ The interviewer says: "Your VPC spans two AZs with a NAT gateway in each. So Mem
 
 ## Pipeline says healthy, ALB says unhealthy
 @ topic: Troubleshooting · level: Mid · files: infra/modules/alb/main.tf, .github/workflows/deploy.yml
-`deploy.yml` curls `https://tm.myegh.com/healthz` and passes. But the target group marked the task unhealthy last week while the app was clearly up.
+`deploy.yml` curls `https://memos.example.com/healthz` and passes. But the target group marked the task unhealthy last week while the app was clearly up.
 ? Why can they disagree, and what would you change?
 - [x] They check different things: the TG requests `/` every 30 s (200–399, 2 failures = unhealthy), while CI hits `/healthz` once. Point the TG at `/healthz` and add a health-check grace period
   > Correct. `/` is the whole web UI. `/healthz` is the dedicated liveness endpoint in `server/server.go`.
@@ -46,7 +46,7 @@ The interviewer says: "Your VPC spans two AZs with a NAT gateway in each. So Mem
 
 ## 503 straight after a deploy
 @ topic: Troubleshooting · level: Junior · files: infra/modules/security/main.tf, infra/modules/ecs/main.tf
-Right after a deploy, `tm.myegh.com` returns **503 Service Temporarily Unavailable**.
+Right after a deploy, `memos.example.com` returns **503 Service Temporarily Unavailable**.
 ? What should you check first?
 - [ ] The Route 53 TTL
   > DNS is fine: the request reached the ALB, which is what answered 503.
@@ -74,7 +74,7 @@ A release is live and users are seeing errors. You need the previous version bac
 
 ## The CI role has AdministratorAccess
 @ topic: Security · level: Mid · files: bootstrap/oidc.tf
-A reviewer points out that `github-actions-role` has **AdministratorAccess**, and its trust policy allows `repo:EnamulRahman/memos-aws-infra:*`.
+A reviewer points out that `github-actions-role` has **AdministratorAccess**, and its trust policy allows `repo:your-username/memos-aws-infra:*`.
 ? Which response is the best improvement?
 - [ ] Switch back to static access keys, which are easier to control
   > Long-lived keys are worse: they can leak and never expire.
@@ -210,7 +210,7 @@ You re-run a failed pipeline on the same commit and the push fails because `memo
   > Unrelated.
 - [ ] Make ECR public
   > A security regression.
-> **Takeaway:** group resources by **lifecycle**. This is the improvement from your prep doc.
+> **Takeaway:** group resources by **lifecycle**.
 
 ## Logs from two weeks ago are gone
 @ topic: Observability · level: Junior · files: infra/modules/ecs/main.tf
@@ -266,7 +266,7 @@ The business wants the platform in a new Region (e.g. me-central-1, UAE) alongsi
   > Duplicated code drifts apart. Modules exist to avoid this.
 - [ ] Use the same VPC CIDR in both Regions
   > That blocks any future peering or Transit Gateway.
-> **Takeaway:** state isolation, reusable modules and data residency. That matches the role you interviewed for.
+> **Takeaway:** state isolation, reusable modules and data residency. Multi-region expansion is a common senior interview question.
 
 ## Auto-apply on main with no review
 @ topic: CI/CD · level: Mid · files: .github/workflows/deploy.yml
@@ -283,9 +283,9 @@ The business wants the platform in a new Region (e.g. me-central-1, UAE) alongsi
 > **Takeaway:** balance speed and safety. This pairs naturally with least-privilege OIDC.
 
 ## The .gitignore that broke the build
-@ topic: Memos stories · level: Junior · files: .gitignore
+@ topic: Git · level: Junior · files: .gitignore
 CI fails with "no Go files in …/cmd/memos", but it builds fine on your laptop.
-? What's the likely cause, based on a real Memos bug?
+? What's the likely cause, based on a classic bug?
 - [x] A `.gitignore` pattern `memos` (meant for the binary) also matched `cmd/memos/`, so `main.go` was never committed. Fix: `/memos`
   > Correct. A leading `/` anchors the pattern to the repo root.
 - [ ] The Go version is wrong on the runner

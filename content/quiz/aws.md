@@ -83,7 +83,7 @@ level: Beginner
 - [ ] Lambda only runs containers
 > You can also package Lambda as a container image.
 
-@ source: My guide
+@ source: Revision notes
 ? What makes a subnet **public**?
 - [ ] A checkbox in the console
 - [x] Its route table sends 0.0.0.0/0 to an internet gateway
@@ -91,7 +91,7 @@ level: Beginner
 - [ ] Being in AZ a
 > Private subnets route 0.0.0.0/0 to a NAT gateway, or have no default route at all.
 
-@ source: My guide · level: Intermediate
+@ source: Revision notes · level: Intermediate
 ? Look at the diagram. What will happen to traffic from the internet trying to reach the ECS task directly?
 ```mermaid
 flowchart LR
@@ -105,7 +105,7 @@ flowchart LR
 - [ ] It's redirected to HTTPS
 > The only way in is through the ALB, and the ECS security group only accepts 8081 from the ALB's security group.
 
-@ source: My guide
+@ source: Revision notes
 ? What do **RPO** and **RTO** mean?
 - [ ] Region Placement Option / Route Table Owner
 - [x] RPO = the most data you can afford to lose (in time); RTO = the most downtime you can afford
@@ -113,7 +113,7 @@ flowchart LR
 - [ ] RPO is for networks, RTO for storage
 > Lower RPO/RTO usually costs more: backup & restore → pilot light → warm standby → active/active.
 
-@ source: My guide
+@ source: Revision notes
 ? Under the shared responsibility model, who patches the OS of an EC2 instance, and of a Fargate task's host?
 - [ ] AWS for both
 - [ ] You for both
@@ -121,7 +121,7 @@ flowchart LR
 - [ ] Nobody, because patching is automatic
 > The more managed the service, the more AWS takes on. You still own your container image's contents.
 
-@ source: My guide
+@ source: Revision notes
 ? Which is the AWS **audit log** of API calls: who did what, and when?
 - [ ] CloudWatch Metrics
 - [x] CloudTrail
@@ -129,7 +129,7 @@ flowchart LR
 - [ ] X-Ray
 > Config records **resource configuration history**. CloudTrail records **API calls**.
 
-@ source: My guide · level: Intermediate
+@ source: Revision notes · level: Intermediate
 ? S3 durability vs availability?
 - [ ] They're the same
 - [x] Durability = how unlikely data is to be lost (eleven nines); availability = how often you can reach it (99.99% for Standard)
@@ -152,7 +152,7 @@ flowchart LR
 - [ ] Lambda, S3 and CloudFront only
 > Memos has the first two tiers. Its data tier is missing because SQLite lives inside the task.
 
-@ source: My guide
+@ source: Revision notes
 ? Which load balancer types does AWS offer?
 - [ ] Only ALB
 - [x] ALB (L7 HTTP), NLB (L4 TCP/UDP, static IPs), Gateway LB (L3 appliances) and the legacy Classic

@@ -56,7 +56,7 @@ variable "vpc_cidr" { type = string }             # input
 resource "aws_vpc" "main" {                        # something to create
   cidr_block = var.vpc_cidr
 }
-data "aws_route53_zone" "main" { name = "myegh.com" }   # look up something that already exists
+data "aws_route53_zone" "main" { name = "example.com" }   # look up something that already exists
 output "vpc_id" { value = aws_vpc.main.id }       # value to expose
 ```
 A reference such as `aws_vpc.main.id` creates a **dependency**, so Terraform builds things in the right order.
@@ -117,7 +117,7 @@ flowchart LR
 
 ```hcl file=infra/provider.tf
 backend "s3" {
-  bucket       = "memos-terraform-state-enamul"
+  bucket       = "memos-tfstate-example"
   key          = "prod/terraform.tfstate"
   region       = "eu-west-1"
   encrypt      = true
@@ -233,8 +233,8 @@ resource "aws_route53_record" "validation" {   # for_each: a map, keyed by name
 Things created by hand can be brought under Terraform with an **import block** (Terraform 1.5+):
 ```hcl
 import {
-  to = aws_route53_record.validation["myegh.com"]
-  id = "Z123…_abc.myegh.com_CNAME"
+  to = aws_route53_record.validation["example.com"]
+  id = "Z123…_abc.example.com_CNAME"
 }
 ```
 > 🔧 **In Memos:** moving ACM into code hit "record already exists". Import blocks adopted the existing records, and were removed after one apply.

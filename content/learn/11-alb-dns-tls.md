@@ -88,25 +88,25 @@ The ALB keeps requesting a **path** on every target:
 ## Route 53 and DNS on AWS
 
 ### Hosted zones and records
-**Route 53** is AWS's DNS service. A **hosted zone** holds the records for a domain (`myegh.com`). The domain's registrar must point its **NS records** at the zone's four Route 53 name servers.
+**Route 53** is AWS's DNS service. A **hosted zone** holds the records for a domain (`example.com`). The domain's registrar must point its **NS records** at the zone's four Route 53 name servers.
 
 ```mermaid
 flowchart LR
-  REG["Registrar<br/>myegh.com NS →"] --> HZ["Route 53 hosted zone<br/>myegh.com"]
-  HZ --> A["A (alias) tm.myegh.com → ALB"]
-  HZ --> V["CNAME _abc.tm.myegh.com → ACM validation"]
+  REG["Registrar<br/>example.com NS →"] --> HZ["Route 53 hosted zone<br/>example.com"]
+  HZ --> A["A (alias) memos.example.com → ALB"]
+  HZ --> V["CNAME _abc.memos.example.com → ACM validation"]
 ```
 
 ### Alias records
 An **alias** record is Route 53's special A/AAAA record that points at an AWS resource (ALB, CloudFront, S3 website…):
 - it follows the resource's **changing IPs** automatically
-- it works at the **zone apex** (`myegh.com`), where a CNAME isn't allowed
+- it works at the **zone apex** (`example.com`), where a CNAME isn't allowed
 - queries to AWS targets are **free**
 
 ```hcl file=infra/main.tf
 resource "aws_route53_record" "app" {
   zone_id = data.aws_route53_zone.main.zone_id
-  name    = "tm.${var.domain_name}"
+  name    = "memos.${var.domain_name}"
   type    = "A"
   alias {
     name                   = module.alb.dns_name
@@ -126,7 +126,7 @@ resource "aws_route53_record" "app" {
 | Geolocation | answer by the user's country, for data residency |
 
 ### Check
-? Why can't you use a CNAME record for `myegh.com` itself (the zone apex)?
+? Why can't you use a CNAME record for `example.com` itself (the zone apex)?
 - [ ] CNAMEs only work with IP addresses
 - [x] DNS rules forbid a CNAME at the apex, where NS and SOA records must exist. Route 53 alias records solve this.
 - [ ] Route 53 doesn't support CNAMEs
@@ -148,7 +148,7 @@ sequenceDiagram
   participant TF as Terraform
   participant ACM
   participant R53 as Route 53
-  TF->>ACM: request a cert for myegh.com + tm.myegh.com
+  TF->>ACM: request a cert for example.com + memos.example.com
   ACM-->>TF: please create CNAME _abc… → _xyz.acm-validations.aws
   TF->>R53: create those validation records
   ACM->>R53: looks up the CNAME

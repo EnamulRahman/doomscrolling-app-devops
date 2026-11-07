@@ -91,7 +91,7 @@ flowchart TB
 ### Where to look, in order
 | Layer | Check |
 |---|---|
-| DNS | `dig tm.myegh.com`: right ALB? |
+| DNS | `dig memos.example.com`: right ALB? |
 | ALB | listener and certificate OK? status code: 502/503/504? |
 | Target group | healthy targets? health-check failure reason? |
 | ECS | service **events**, task **stopped reason**, exit code |
@@ -119,7 +119,7 @@ After an incident write: **timeline · impact · root cause · what went well ·
 5. **Security groups:** ECS SG allows 8081 **from the ALB SG**, and the ALB SG has **egress** to it.
 6. **Logs:** `/ecs/memos`: crashing on start?
 
-> 🔧 **Real story:** port drift between 5230 (Memos' default) and 8081 made targets unhealthy. The lesson: define the port **once** as a variable.
+> 🔧 **Classic cause:** port drift between 5230 (Memos' default) and 8081 makes targets unhealthy. The lesson: define the port **once** as a variable.
 
 ### The task won't start
 ```mermaid

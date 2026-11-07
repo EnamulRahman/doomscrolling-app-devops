@@ -165,7 +165,7 @@ flowchart LR
 - [ ] `cat *.yaml`
 > `find` walks the tree. `-exec … {} \;` runs `ls -l` on each match.
 
-@ source: My guide
+@ source: Revision notes
 ? What exit code means "command not found"?
 - [ ] 0
 - [ ] 1

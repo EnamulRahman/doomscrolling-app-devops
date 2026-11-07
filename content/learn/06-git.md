@@ -25,7 +25,7 @@ flowchart LR
 
 ### Your first loop
 ```output
-git clone https://github.com/EnamulRahman/memos-aws-infra.git
+git clone https://github.com/your-username/memos-aws-infra.git
 cd memos-aws-infra
 # …edit files…
 git status                 # what changed?
@@ -124,7 +124,7 @@ Edit it to the correct result, delete the markers, then `git add` the file and `
 ### .gitignore
 `.gitignore` lists files Git should never track: `.terraform/`, `*.tfstate`, `.env`, build outputs.
 
-> 🔧 **A real Memos bug:** the pattern `memos` (meant for the built binary) also matched the folder `cmd/memos/`, so `main.go` was never committed and the build failed in CI. The fix was `/memos`. A leading `/` anchors the pattern to the repo root.
+> 🔧 **A classic bug:** the pattern `memos` (meant for the built binary) also matches the folder `cmd/memos/`, so `main.go` is never committed and the build fails in CI. The fix is `/memos`. A leading `/` anchors the pattern to the repo root.
 
 ### Check
 ? A bad commit was pushed to `main` an hour ago and teammates have pulled it. What's the safe way to undo it?

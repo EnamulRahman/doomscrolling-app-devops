@@ -129,7 +129,7 @@ level: Beginner
 - [ ] In the Docker image
 > Runners are throwaway VMs. State saved there would be lost after every job.
 
-@ source: My guide · level: Intermediate
+@ source: Revision notes · level: Intermediate
 ? What does `-/+` mean in a plan?
 ```output
 -/+ resource "aws_lb" "this" {
@@ -142,7 +142,7 @@ level: Beginner
 - [ ] It's imported
 > Some attributes can't be changed in place. Renaming an ALB replaces it, which means a new DNS name and a brief outage.
 
-@ source: My guide · level: Intermediate
+@ source: Revision notes · level: Intermediate
 ? Why prefer `for_each` over `count` for things you may remove later?
 - [ ] count is deprecated
 - [x] count tracks items by position, so removing one shifts the rest and can recreate them; for_each uses stable keys
@@ -150,7 +150,7 @@ level: Beginner
 - [ ] count can't create subnets
 > Memos uses `for_each` over ACM's validation options.
 
-@ source: My guide
+@ source: Revision notes
 ? Why does Memos keep the state bucket and OIDC role in a separate `bootstrap/` stack?
 - [ ] Terraform requires it
 - [x] They must exist before the main stack (the state has to live somewhere), and they're long-lived, so destroying `infra/` won't touch them

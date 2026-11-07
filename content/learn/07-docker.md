@@ -128,7 +128,7 @@ flowchart LR
 ```
 Only **stage 3** becomes the final image. Stages 1 and 2 are thrown away.
 
-### The real Dockerfile (lightly trimmed)
+### The full Dockerfile (lightly trimmed)
 ```dockerfile file=Dockerfile
 FROM node:22-alpine AS frontend
 WORKDIR /build/web

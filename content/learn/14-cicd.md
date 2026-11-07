@@ -97,7 +97,7 @@ sequenceDiagram
   participant STS as AWS STS
   participant AWS as AWS APIs
   GH->>IdP: request an ID token (needs permissions id-token: write)
-  IdP-->>GH: signed JWT: sub=repo:EnamulRahman/memos-aws-infra:ref:refs/heads/main, aud=sts.amazonaws.com
+  IdP-->>GH: signed JWT: sub=repo:your-username/memos-aws-infra:ref:refs/heads/main, aud=sts.amazonaws.com
   GH->>STS: AssumeRoleWithWebIdentity(role ARN + JWT)
   STS->>STS: verify signature + check the role's trust policy conditions
   STS-->>GH: temporary credentials (expire, ~1 hour)
@@ -109,13 +109,13 @@ No secret is stored. The only GitHub secret is the **role ARN**, which isn't a c
 ```hcl file=bootstrap/oidc.tf
 Condition = {
   StringEquals = { "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com" }
-  StringLike   = { "token.actions.githubusercontent.com:sub" = "repo:EnamulRahman/memos-aws-infra:*" }
+  StringLike   = { "token.actions.githubusercontent.com:sub" = "repo:your-username/memos-aws-infra:*" }
 }
 ```
 - `aud` must be `sts.amazonaws.com`.
 - `sub` decides **which repo, branch or environment** may assume the role.
 
-> 🔧 **Real Memos story:** OIDC kept failing because the `sub` didn't match after the repo was renamed. The fix was rebuilding the provider and role with a correct trust policy, then moving it into `bootstrap/`.
+> 🔧 **Classic failure:** OIDC keeps failing because the `sub` doesn't match, for example after a repo is renamed. The fix is rebuilding the provider and role with a correct trust policy, then moving it into `bootstrap/`.
 
 > ⚠️ **Tighten it:** `:*` allows any branch. `repo:…:ref:refs/heads/main` or `repo:…:environment:production` is safer. The role also has AdministratorAccess today, which is too broad.
 

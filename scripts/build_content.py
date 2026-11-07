@@ -18,7 +18,6 @@ import glob, html, json, os, re, sys
 import markdown
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REPO = "https://github.com/EnamulRahman/memos-aws-infra/blob/main/"
 FENCE = re.compile(r"^```([^\n]*)\n(.*?)^```[ \t]*$", re.M | re.S)
 errors = []
 
@@ -48,8 +47,6 @@ def segments(text):
             blk = {"type": "code", "lang": lang, "code": body}
             if fm:
                 blk["file"] = fm.group(1)
-                if not fm.group(1).startswith(("~", "/", "app")) and "." in fm.group(1):
-                    blk["href"] = REPO + fm.group(1)
             out.append(blk)
         pos = m.end()
     rest = text[pos:]
@@ -226,7 +223,7 @@ def build_scenarios():
             files = [f.strip() for f in meta.pop("files", "").split(",") if f.strip()]
             out.append({"title": title, "situation": situation, **q, "topic": meta.get("topic", ""),
                         "level": meta.get("level", ""), "source": meta.get("source", ""),
-                        "links": [{"href": REPO + f, "label": f} for f in files]})
+                        "links": [{"label": f} for f in files]})
     return out
 
 

@@ -1,18 +1,21 @@
 ---
 id: interview
-title: Interview mastery: Memos
+title: Interview mastery: present what you built
 level: Advanced
 icon: 🎤
-topic: Memos
-summary: Your 60-second pitch, how to tell project stories, the improvements roadmap and how to handle questions you can't answer.
+topic: Interview
+summary: Turn the project you built in the Lab into a 60-second pitch, strong stories, an improvement roadmap and calm answers to hard questions.
 ---
 
-## Your pitch
+## The pitch
+
+### Your project is now an interview asset
+Once you've finished the **Build Lab**, you have a real, working platform to talk about. Interviewers love a project you can explain end to end, because it shows you can do the job, not just define the words.
 
 ### The 60-second version
-Say this out loud until it's natural:
+Adapt this template to what you actually built, then say it out loud until it's natural:
 
-> “I deployed the open-source **Memos** app to AWS at **tm.myegh.com**. It runs on **ECS Fargate in private subnets** across **two AZs**, behind a public **ALB** that redirects HTTP to HTTPS using an **ACM** certificate validated automatically through **Route 53**. The image is a **three-stage Docker build**, 2.79 GB down to 75.8 MB, and runs as a non-root user. Everything is **Terraform**: a bootstrap stack for state and OIDC, then seven modules, with **S3 remote state and native locking**. **GitHub Actions** builds and deploys with **OIDC**, so there are no stored AWS keys. tfsec scans every run, a post-deploy check hits **/healthz**, and I can **roll back** by redeploying any previous commit SHA.”
+> “I deployed the open-source **Memos** app to AWS at **memos.example.com**. It runs on **ECS Fargate in private subnets** across **two AZs**, behind a public **ALB** that redirects HTTP to HTTPS using an **ACM** certificate validated automatically through **Route 53**. The image is a **three-stage Docker build**, 2.79 GB down to 75.8 MB, and runs as a non-root user. Everything is **Terraform**: a bootstrap stack for state and OIDC, then seven modules, with **S3 remote state and native locking**. **GitHub Actions** builds and deploys with **OIDC**, so there are no stored AWS keys. tfsec scans every run, a post-deploy check hits **/healthz**, and I can **roll back** by redeploying any previous commit SHA.”
 
 ### The diagram you should be able to draw
 ```mermaid
@@ -45,7 +48,7 @@ flowchart LR
 ```
 The **lesson** is what interviewers remember. It shows you learn.
 
-### Your eight stories
+### Eight problems you'll probably hit
 | # | Story | Lesson |
 |---|---|---|
 | 1 | OIDC wouldn't authenticate | the trust policy `sub` must match exactly |
@@ -57,14 +60,14 @@ The **lesson** is what interviewers remember. It shows you learn.
 | 7 | Immutable tags broke re-runs | check ECR first, reuse the image |
 | 8 | ACM records already existed | `import` blocks |
 
-Learn 1, 2 and 6 really well.
+People building this project commonly hit these. If **you** hit one while building, that's your story: tell it with the real details. Have two or three ready.
 
-### Example: story 1
-- **Situation:** first pipeline run deploying Memos with GitHub Actions.
+### Example answer: the OIDC story
+- **Situation:** the first pipeline run deploying the app with GitHub Actions.
 - **Problem:** the AWS login step failed. The role couldn't be assumed.
-- **Found it:** tried several "Test OIDC" commits and a downgrade of the action, which didn't help. I briefly used static keys **only** to unblock the rest of the pipeline.
-- **Fix:** the trust policy's `sub` didn't match the renamed repo. I rebuilt the provider and role with `aud = sts.amazonaws.com` and `sub` like `repo:EnamulRahman/memos-aws-infra:*`, then moved it into the bootstrap stack and removed the static keys.
-- **Lesson:** OIDC failures are almost always the trust policy, so check `sub`/`aud` against the token's claims first.
+- **Found it:** I checked the token's claims against the role's trust policy and saw the `sub` didn't match my repo name.
+- **Fix:** I corrected the trust policy (`aud = sts.amazonaws.com`, `sub` like `repo:your-username/memos-aws-infra:ref:refs/heads/main`), moved it into the bootstrap stack, and kept everything keyless, with no static keys as a workaround.
+- **Lesson:** OIDC failures are almost always the trust policy, so check `sub`/`aud` first.
 
 ### Check
 ? In a project story, which part do interviewers value most?

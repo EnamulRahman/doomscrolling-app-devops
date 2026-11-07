@@ -14,14 +14,14 @@ level: Beginner
 ? Which part of this HTTP request is the **method**?
 ```output
 POST /api/v1/memos HTTP/1.1
-Host: tm.myegh.com
+Host: memos.example.com
 Content-Type: application/json
 
 {"content": "buy milk"}
 ```
 - [x] `POST`
 - [ ] `/api/v1/memos`
-- [ ] `Host: tm.myegh.com`
+- [ ] `Host: memos.example.com`
 - [ ] `{"content": "buy milk"}`
 > Request line = **method + path + version**. Then come the headers, a blank line and the body.
 
@@ -55,7 +55,7 @@ Content-Type: application/json
 
 ? What does DNS do?
 - [ ] Encrypts traffic
-- [x] Translates names such as tm.myegh.com into IP addresses
+- [x] Translates names such as memos.example.com into IP addresses
 - [ ] Assigns IP addresses to devices
 - [ ] Balances load between servers
 > Handing out IP addresses is **DHCP**'s job, not DNS's.
@@ -149,7 +149,7 @@ Content-Type: application/json
 - [ ] Layer 7
 > L2 is MAC/switches, **L3 is IP/routers**, L4 is TCP/UDP ports and L7 is HTTP/DNS.
 
-@ source: My guide
+@ source: Revision notes
 ? Which DNS record type points a name to **another name**?
 - [ ] A
 - [ ] MX

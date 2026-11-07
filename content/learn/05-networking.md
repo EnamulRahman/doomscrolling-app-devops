@@ -127,12 +127,12 @@ sequenceDiagram
   participant Root as Root server
   participant TLD as .com server
   participant A as Authoritative (Route 53)
-  B->>R: tm.myegh.com?
-  R->>Root: tm.myegh.com?
+  B->>R: memos.example.com?
+  R->>Root: memos.example.com?
   Root-->>R: ask the .com servers
-  R->>TLD: tm.myegh.com?
-  TLD-->>R: ask myegh.com's name servers
-  R->>A: tm.myegh.com?
+  R->>TLD: memos.example.com?
+  TLD-->>R: ask example.com's name servers
+  R->>A: memos.example.com?
   A-->>R: 34.x.x.x (TTL 60)
   R-->>B: 34.x.x.x (cached for the TTL)
 ```
@@ -141,13 +141,13 @@ The answer is **cached** for its **TTL** (time to live, in seconds), which is wh
 ### Record types
 | Type | Points a name to | Example |
 |---|---|---|
-| **A** | an IPv4 address | `tm.myegh.com → 34.x.x.x` |
+| **A** | an IPv4 address | `memos.example.com → 34.x.x.x` |
 | **AAAA** | an IPv6 address | |
-| **CNAME** | another name | `www → myegh.com` (not allowed at the zone apex) |
+| **CNAME** | another name | `www → example.com` (not allowed at the zone apex) |
 | **MX** | mail servers | |
 | **TXT** | text: verification, SPF | |
 | **NS** | the zone's name servers | |
-| **Alias** (Route 53 only) | an AWS resource, **even at the apex** | `tm.myegh.com → the ALB` |
+| **Alias** (Route 53 only) | an AWS resource, **even at the apex** | `memos.example.com → the ALB` |
 
 ### Check
 ? Why does Memos use a Route 53 **alias A record** for the load balancer instead of an ordinary A record?
@@ -163,7 +163,7 @@ The answer is **cached** for its **TTL** (time to live, in seconds), which is wh
 **TLS** (the S in HTTPS) provides:
 - **Encryption:** nobody on the way can read the traffic.
 - **Integrity:** nobody can change it unnoticed.
-- **Authentication:** the **certificate** proves the server really is `tm.myegh.com`.
+- **Authentication:** the **certificate** proves the server really is `memos.example.com`.
 
 A certificate is signed by a **Certificate Authority (CA)** that browsers trust. In AWS, **ACM** issues certificates for free and renews them automatically.
 
@@ -173,7 +173,7 @@ sequenceDiagram
   participant B as Browser
   participant L as ALB (has the ACM certificate)
   B->>L: hello: I support TLS 1.3 / 1.2
-  L-->>B: here's my certificate for tm.myegh.com
+  L-->>B: here's my certificate for memos.example.com
   Note over B: checks the signature chain + name + expiry
   B->>L: key exchange
   Note over B,L: both now share a secret key
@@ -199,7 +199,7 @@ sequenceDiagram
 | Question | Tool |
 |---|---|
 | Is the host reachable? | `ping host` (often blocked, so not conclusive) |
-| What does DNS say? | `dig tm.myegh.com` / `nslookup` |
+| What does DNS say? | `dig memos.example.com` / `nslookup` |
 | Does the port answer? | `nc -zv host 443` · `curl -v https://host` |
 | Where does the path break? | `traceroute` / `mtr` |
 | What's listening here? | `ss -tlnp` (or `netstat -tlnp`) |

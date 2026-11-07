@@ -1,6 +1,8 @@
 # Set up your tools
 @ icon: 🧰 · time: 30 min
-Every DevOps project starts the same way: the right tools on your machine and a **safe** AWS account. In this lab you'll rebuild the Memos platform from nothing, the same way the real repo was built.
+Every DevOps project starts the same way: the right tools on your machine and a **safe** AWS account. In this lab you'll take **Memos**, an open-source note-taking app, as your example project and build a production platform for it from nothing: **Dockerise** it, provision AWS with **Terraform**, and automate every change with a **CI/CD pipeline**. That's the same path a real team would take.
+
+> 🔧 **Placeholders:** wherever you see `your-username`, `example.com`, `memos-tfstate-example` or the account `123456789012`, use your own GitHub username, domain, bucket name and account.
 
 > 🔧 **How the lab works:** each step explains **what** and **why**, then gives you a command to type into the practice terminal. You can tap **Run it for me** on your phone. To do it for real, copy the commands into your own terminal.
 
@@ -8,7 +10,7 @@ Every DevOps project starts the same way: the right tools on your machine and a 
 flowchart LR
   L["💻 laptop<br/>git · docker · aws · terraform"] --> GH[GitHub repo]
   GH --> AWS["☁️ AWS: VPC · ALB · ECS · ECR"]
-  AWS --> W["🌐 tm.myegh.com"]
+  AWS --> W["🌐 memos.example.com"]
 ```
 
 ## Install Git and check it
@@ -18,7 +20,7 @@ $ git --version
 git version 2.47.1
 ```
 Tell Git who you are, once per machine:
-$ git config --global user.name "Enamul Rahman"
+$ git config --global user.name "Your Name"
 ```output
 (no output means it worked)
 ```
@@ -89,16 +91,16 @@ Then check who you are:
 $ aws sts get-caller-identity --profile memos
 ```output
 {
-    "UserId": "AROA3XFRBF23EXAMPLE:enamul",
+    "UserId": "AROA3XFRBF23EXAMPLE:you",
     "Account": "123456789012",
-    "Arn": "arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_AdministratorAccess_ab12/enamul"
+    "Arn": "arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_AdministratorAccess_ab12/you"
 }
 ```
 > 🔧 Run `export AWS_PROFILE=memos` so every later command uses this login.
 
 # Create the repo and get the app
 @ icon: 📁 · time: 15 min
-The infrastructure lives in its own repository, **memos-aws-infra**, with the Memos source code in an `app/` folder.
+Your infrastructure lives in its own repository (call it **memos-aws-infra**), with the Memos source code copied into an `app/` folder.
 
 ```mermaid
 flowchart TB
@@ -112,7 +114,7 @@ flowchart TB
 ## Create the repository
 $ mkdir memos-aws-infra && cd memos-aws-infra && git init
 ```output
-Initialized empty Git repository in /Users/enamul/memos-aws-infra/.git/
+Initialized empty Git repository in /Users/you/memos-aws-infra/.git/
 ```
 
 ## Bring in the Memos source
@@ -134,7 +136,7 @@ Keep build output, secrets and Terraform's local files out of Git.
 .env
 /memos
 ```
-> 🔧 **The real bug:** an earlier version said `memos` (no slash). That also matched `app/cmd/memos/`, so `main.go` was never committed and CI failed. **`/memos`** only matches at the repo root.
+> 🔧 **A classic bug:** a first version often says `memos` (no slash). That also matched `app/cmd/memos/`, so `main.go` is never committed and CI fails. **`/memos`** only matches at the repo root.
 
 ? Why does `/memos` in .gitignore behave differently from `memos`?
 - [ ] It doesn't: they're identical
@@ -144,12 +146,12 @@ Keep build output, secrets and Terraform's local files out of Git.
 > Unanchored patterns match at **any depth**. That's how `cmd/memos/` disappeared.
 
 ## First commit and push
-Create an empty repo on GitHub called **memos-aws-infra**, then:
+Create an empty repo on GitHub under your own account called **memos-aws-infra**, then:
 $ git add . && git commit -m "Add Memos source" && git push -u origin main
 ```output
 [main (root-commit) 1a2b3c4] Add Memos source
  1203 files changed, 98211 insertions(+)
-To github.com:EnamulRahman/memos-aws-infra.git
+To github.com:your-username/memos-aws-infra.git
  * [new branch]      main -> main
 ```
 
@@ -193,7 +195,7 @@ COPY app/ ./
 COPY --from=frontend /build/server/router/frontend/dist ./server/router/frontend/dist
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -tags netgo,osusergo -o /memos ./cmd/memos
 ```
-> 🔧 **Story 3:** the image was `golang:1.23`, but `go.mod` needed newer Go. It's now **1.25**, matching the code. Always match toolchain versions.
+> 🔧 **Common pitfall:** if the builder image (say `golang:1.23`) is older than the Go version in `go.mod`, the build fails. Always match toolchain versions: here, **1.25**.
 
 ## Stage 3: a tiny, non-root runtime
 Only the binary, CA certificates and time-zone data. A dedicated user, **1001**, owns the data folder.
@@ -263,7 +265,7 @@ Before the main infrastructure, you need two **long-lived** things: a place to s
 ```mermaid
 flowchart LR
   subgraph BOOT["bootstrap/ · local state · run once"]
-    S3[("S3: memos-terraform-state-enamul<br/>versioned · encrypted · private")]
+    S3[("S3: memos-tfstate-example<br/>versioned · encrypted · private")]
     OIDC["IAM OIDC provider<br/>token.actions.githubusercontent.com"]
     ROLE["IAM role github-actions-role"]
   end
@@ -291,7 +293,7 @@ provider "aws" {
 ## The state bucket
 ```hcl file=bootstrap/state.tf
 resource "aws_s3_bucket" "state" {
-  bucket = "memos-terraform-state-enamul"   # globally unique: use your own
+  bucket = "memos-tfstate-example"   # globally unique: use your own
   lifecycle { prevent_destroy = true }
 }
 resource "aws_s3_bucket_versioning" "state" {
@@ -341,13 +343,13 @@ resource "aws_iam_role" "github_actions" {
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = { "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com" }
-        StringLike   = { "token.actions.githubusercontent.com:sub" = "repo:EnamulRahman/memos-aws-infra:*" }
+        StringLike   = { "token.actions.githubusercontent.com:sub" = "repo:your-username/memos-aws-infra:*" }
       }
     }]
   })
 }
 ```
-> ⚠️ The real repo attaches **AdministratorAccess** to this role, which is simple but too broad. In stage 15 you'll tighten it.
+> ⚠️ To keep the first version simple, attach **AdministratorAccess** to this role. It works, but it's too broad, and in stage 15 you'll tighten it.
 
 ## Apply the bootstrap
 $ cd bootstrap && terraform init
@@ -363,7 +365,7 @@ Plan: 8 to add, 0 to change, 0 to destroy.
 Do you want to perform these actions?
   Enter a value: yes
 
-aws_s3_bucket.state: Creation complete after 2s [id=memos-terraform-state-enamul]
+aws_s3_bucket.state: Creation complete after 2s [id=memos-tfstate-example]
 aws_iam_openid_connect_provider.github: Creation complete after 1s
 aws_iam_role.github_actions: Creation complete after 1s [id=github-actions-role]
 
@@ -403,7 +405,7 @@ terraform {
     aws = { source = "hashicorp/aws", version = "~> 5.0" }
   }
   backend "s3" {
-    bucket       = "memos-terraform-state-enamul"
+    bucket       = "memos-tfstate-example"
     key          = "prod/terraform.tfstate"
     region       = "eu-west-1"
     encrypt      = true
@@ -423,7 +425,7 @@ Declare inputs in `variables.tf`, and put the real values in `terraform.tfvars`:
 project_name = "memos"
 environment  = "prod"
 aws_region   = "eu-west-1"
-domain_name  = "myegh.com"
+domain_name  = "example.com"
 
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -445,7 +447,7 @@ Terraform has been successfully initialized!
 ```
 ? Where will this stack's state be stored?
 - [ ] In `infra/terraform.tfstate` on your laptop
-- [x] In S3 at `memos-terraform-state-enamul/prod/terraform.tfstate`, locked with a `.tflock` object
+- [x] In S3 at `memos-tfstate-example/prod/terraform.tfstate`, locked with a `.tflock` object
 - [ ] In GitHub
 - [ ] In DynamoDB
 > Shared by you and CI, versioned, encrypted, and locked during applies.
@@ -683,7 +685,7 @@ sequenceDiagram
   participant TF as Terraform
   participant ACM
   participant R53 as Route 53
-  TF->>ACM: request cert (myegh.com + tm.myegh.com)
+  TF->>ACM: request cert (example.com + memos.example.com)
   ACM-->>TF: validation CNAMEs
   TF->>R53: create the CNAMEs
   ACM->>R53: check
@@ -698,7 +700,7 @@ data "aws_route53_zone" "main" {
   private_zone = false
 }
 ```
-$ aws route53 list-hosted-zones-by-name --dns-name myegh.com --query "HostedZones[0].Id"
+$ aws route53 list-hosted-zones-by-name --dns-name example.com --query "HostedZones[0].Id"
 ```output
 "/hostedzone/Z0123456789ABCDEFGHIJ"
 ```
@@ -707,7 +709,7 @@ $ aws route53 list-hosted-zones-by-name --dns-name myegh.com --query "HostedZone
 ```hcl file=infra/modules/acm/main.tf
 resource "aws_acm_certificate" "this" {
   domain_name               = var.domain_name
-  subject_alternative_names = ["tm.${var.domain_name}"]
+  subject_alternative_names = ["memos.${var.domain_name}"]
   validation_method         = "DNS"
   lifecycle { create_before_destroy = true }
 }
@@ -733,8 +735,8 @@ resource "aws_acm_certificate_validation" "this" {
 $ terraform apply -target=module.acm
 ```output
 module.acm.aws_acm_certificate.this: Creation complete after 9s
-module.acm.aws_route53_record.validation["myegh.com"]: Creation complete after 35s
-module.acm.aws_route53_record.validation["tm.myegh.com"]: Creation complete after 35s
+module.acm.aws_route53_record.validation["example.com"]: Creation complete after 35s
+module.acm.aws_route53_record.validation["memos.example.com"]: Creation complete after 35s
 module.acm.aws_acm_certificate_validation.this: Still creating... [1m0s elapsed]
 module.acm.aws_acm_certificate_validation.this: Creation complete after 1m12s
 ```
@@ -868,7 +870,7 @@ resource "aws_iam_role" "task_role" {
 
 # Run Memos on ECS and go live
 @ icon: 🚀 · time: 30 min
-The final piece: a cluster, a task definition, a service wired to the ALB, and a DNS record. After this, **tm.myegh.com** is live.
+The final piece: a cluster, a task definition, a service wired to the ALB, and a DNS record. After this, **memos.example.com** is live.
 
 ```mermaid
 flowchart TB
@@ -948,7 +950,7 @@ resource "aws_ecs_service" "this" {
 ```hcl file=infra/main.tf
 resource "aws_route53_record" "app" {
   zone_id = data.aws_route53_zone.main.zone_id
-  name    = "tm.${var.domain_name}"
+  name    = "memos.${var.domain_name}"
   type    = "A"
   alias {
     name                   = module.alb.dns_name
@@ -966,10 +968,10 @@ Plan: 9 to add, 0 to change, 0 to destroy.
 module.ecs.aws_ecs_cluster.this: Creation complete after 11s
 module.ecs.aws_ecs_task_definition.this: Creation complete after 1s [id=memos-task]
 module.ecs.aws_ecs_service.this: Creation complete after 2s
-aws_route53_record.app: Creation complete after 41s [id=Z0123…_tm.myegh.com_A]
+aws_route53_record.app: Creation complete after 41s [id=Z0123…_memos.example.com_A]
 
 Outputs:
-app_url = "https://tm.myegh.com"
+app_url = "https://memos.example.com"
 ```
 
 ## Watch the service become healthy
@@ -981,12 +983,12 @@ $ aws ecs describe-services --cluster memos-cluster --services memos-service --q
     "(service memos-service) has started 1 tasks: (task 7d1e…)."
 ]
 ```
-$ curl -s -o /dev/null -w "%{http_code}\n" https://tm.myegh.com/healthz
+$ curl -s -o /dev/null -w "%{http_code}\n" https://memos.example.com/healthz
 ```output
 200
 ```
 🎉 **Memos is live on AWS.**
-? A user visits `http://tm.myegh.com`. Put the journey in order.
+? A user visits `http://memos.example.com`. Put the journey in order.
 - [ ] ECS → ALB → Route 53 → browser
 - [x] Route 53 alias → ALB :80 → 301 to https → ALB :443 (TLS with ACM) → target group → task on 8081
 - [ ] NAT gateway → ECS → ALB
@@ -1086,7 +1088,7 @@ The deploy job checks the SHA is 40 characters and exists in ECR, then runs `ter
     steps:
       - run: sleep 60
       - run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://tm.myegh.com/healthz)
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://memos.example.com/healthz)
           if [ "$code" = "200" ]; then echo "✅ Health check passed"; else echo "❌ got $code"; exit 1; fi
 ```
 
@@ -1095,7 +1097,7 @@ Make a small change in `app/` and push:
 $ git commit -am "Tweak app title" && git push
 ```output
 [main 3f9c2e1] Tweak app title
-To github.com:EnamulRahman/memos-aws-infra.git
+To github.com:your-username/memos-aws-infra.git
    5d6e7f8..3f9c2e1  main -> main
 ```
 In GitHub → **Actions**: *Build and Push* ✅ → *Deploy* ✅ → *Post Deploy Health Check* ✅.
@@ -1140,7 +1142,7 @@ $ aws elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalanci
 - [x] Define the port once (a variable used by the image env, task definition, target group and SG rules) so they can't drift apart
 - [ ] Turn off health checks
 - [ ] Use port 80 everywhere
-> This was a real Memos bug: 5230 vs 8081. One source of truth for each value.
+> Port drift (5230 vs 8081) is one of the most common reasons targets go unhealthy. Keep one source of truth for each value.
 
 ## Drill 2: read the logs
 When the task is crashing, the answer is usually in the logs:
@@ -1213,7 +1215,7 @@ health_check {
 Only `main` may assume the role, and with fewer permissions:
 ```hcl file=bootstrap/oidc.tf
 StringLike = {
-  "token.actions.githubusercontent.com:sub" = "repo:EnamulRahman/memos-aws-infra:ref:refs/heads/main"
+  "token.actions.githubusercontent.com:sub" = "repo:your-username/memos-aws-infra:ref:refs/heads/main"
 }
 ```
 Then replace `AdministratorAccess` with a policy listing the ECR, ECS, ELB, EC2, IAM (scoped), ACM, Route 53, Logs and state-bucket actions Terraform actually uses. Pin third-party actions to commit SHAs while you're there.

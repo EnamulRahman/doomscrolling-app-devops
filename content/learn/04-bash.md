@@ -97,7 +97,7 @@ flowchart LR
 Every command returns a number when it finishes: **0 = success**, anything else = failure. `$?` holds the last one. CI pipelines fail a step whenever a command returns non-zero.
 
 ```output
-$ curl -sf https://tm.myegh.com/healthz; echo $?
+$ curl -sf https://memos.example.com/healthz; echo $?
 0
 $ ls /nope; echo $?
 ls: /nope: No such file or directory
@@ -109,7 +109,7 @@ ls: /nope: No such file or directory
 ### if, for, while
 ```bash file=check.sh
 #!/bin/bash
-code=$(curl -s -o /dev/null -w "%{http_code}" https://tm.myegh.com/healthz)
+code=$(curl -s -o /dev/null -w "%{http_code}" https://memos.example.com/healthz)
 
 if [ "$code" = "200" ]; then
   echo "✅ healthy"

@@ -90,7 +90,7 @@ level: Beginner
 - [ ] The CI runner is too slow
 > Add integration and smoke tests against staging, and keep environments consistent with IaC.
 
-@ source: My guide · level: Intermediate
+@ source: Revision notes · level: Intermediate
 ? Which line lets a GitHub Actions job request an OIDC token for AWS?
 ```yaml
 jobs:
@@ -106,7 +106,7 @@ jobs:
 - [ ] `id-token: admin`
 > `write` lets the job **request** an ID token. Without it, `configure-aws-credentials` can't do OIDC.
 
-@ source: My guide · level: Intermediate
+@ source: Revision notes · level: Intermediate
 ? Why pin third-party GitHub Actions to a full commit SHA rather than a tag like `@v4`?
 - [ ] SHAs run faster
 - [x] Tags can be moved to point at different (possibly malicious) code; a SHA can't change
@@ -114,7 +114,7 @@ jobs:
 - [ ] Tags don't work for private repos
 > Your workflow runs with your credentials, so supply-chain safety matters.
 
-@ source: My guide
+@ source: Revision notes
 ? Which trigger lets you run a workflow manually, with inputs, from the GitHub UI?
 - [ ] `push`
 - [ ] `schedule`

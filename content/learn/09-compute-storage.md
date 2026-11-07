@@ -124,7 +124,7 @@ flowchart TB
 - **Durability** of 99.999999999% ("eleven nines"), so data is almost never lost. **Availability** (can you reach it right now) is a separate figure, 99.99% for Standard.
 - **Block Public Access**, **versioning**, **encryption** and **lifecycle** rules (move old data to cheaper classes such as Glacier).
 
-> 🔧 **In Memos:** the bucket `memos-terraform-state-enamul` holds Terraform state, with versioning, encryption, public access blocked and a policy that denies non-HTTPS access.
+> 🔧 **In Memos:** the bucket `memos-tfstate-example` holds Terraform state, with versioning, encryption, public access blocked and a policy that denies non-HTTPS access.
 
 ### Check
 ? Memos loses its SQLite data whenever the Fargate task is replaced. Which storage could fix that without changing the database?

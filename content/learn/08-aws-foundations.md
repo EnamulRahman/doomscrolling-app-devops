@@ -156,7 +156,7 @@ A role has two policies:
 ### Least privilege
 Grant **only** the permissions needed, on **only** the resources needed, for **only** as long as needed. Start small and add permissions when something is denied, rather than starting with admin.
 
-> 🔧 **Honest note on Memos:** the CI role currently has `AdministratorAccess`. That works, but it isn't least privilege. Tightening it is a great interview talking point.
+> 🔧 **Note on the example:** the first version of the Memos CI role uses `AdministratorAccess`. That works, but it isn't least privilege. Tightening it is a great interview talking point.
 
 ### Check
 ? A user is in a group whose policy **allows** `s3:*`, and also has a policy that **denies** `s3:DeleteBucket`. Can they delete a bucket?
@@ -184,9 +184,9 @@ Grant **only** the permissions needed, on **only** the resources needed, for **o
 $ aws configure sso                       # log in through IAM Identity Center
 $ aws sts get-caller-identity             # who am I?
 {
-  "UserId": "AROA…:enamul",
+  "UserId": "AROA…:you",
   "Account": "123456789012",
-  "Arn": "arn:aws:sts::123456789012:assumed-role/AdminAccess/enamul"
+  "Arn": "arn:aws:sts::123456789012:assumed-role/AdminAccess/you"
 }
 ```
 
