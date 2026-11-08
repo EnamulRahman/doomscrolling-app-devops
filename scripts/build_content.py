@@ -229,11 +229,19 @@ def build_scenarios():
 
 # ---------------------------------------------------------------- lab
 def build_lab():
-    path = os.path.join(ROOT, "content", "lab.md")
-    if not os.path.exists(path):
-        return []
+    """content/labs/*.md: one file per lab track (frontmatter: id, title, icon, summary)."""
+    tracks = []
+    for path in sorted(glob.glob(os.path.join(ROOT, "content", "labs", "*.md"))):
+        meta, body = split_frontmatter(open(path, encoding="utf-8").read())
+        tracks.append({"id": meta.get("id") or os.path.basename(path)[3:-3], "title": meta.get("title", ""),
+                       "icon": meta.get("icon", "🛠️"), "summary": meta.get("summary", ""),
+                       "stages": build_stages(body, path)})
+    return tracks
+
+
+def build_stages(text, path):
     stages = []
-    for stitle, sbody in split_on(open(path, encoding="utf-8").read(), "# "):
+    for stitle, sbody in split_on(text, "# "):
         if stitle is None:
             continue
         lines = sbody.strip("\n").split("\n")
@@ -256,7 +264,7 @@ def build_lab():
                     if "\n".join(buf).strip():
                         step["blocks"] += segments("\n".join(buf))
                     buf = []
-                    step["blocks"].append({"type": "check", "mcq": parse_mcq(text[i:], f"lab:{title}")})
+                    step["blocks"].append({"type": "check", "mcq": parse_mcq(text[i:], f"{path}:{title}")})
                     break
                 if not in_fence and l.startswith("$ "):
                     if "\n".join(buf).strip():
@@ -310,7 +318,8 @@ def main():
     diagrams = json.dumps([modules, scen, lab, pool], separators=(',', ':')).count('"type":"diagram"')
     print(f"learn: {len(modules)} modules · {sum(len(m['lessons']) for m in modules)} lessons · {cards} cards · {len(checks)} checks")
     print(f"quiz: {len(pool)} questions ({len(quiz)} bank + {len(checks)} lesson checks)")
-    print(f"scenarios: {len(scen)} · lab: {len(lab)} stages, {sum(len(s['steps']) for s in lab)} steps · diagrams: {diagrams}")
+    labs = " · ".join(f"{t['title']}: {len(t['stages'])} stages, {sum(len(s['steps']) for s in t['stages'])} steps" for t in lab)
+    print(f"scenarios: {len(scen)} · labs: {labs} · diagrams: {diagrams}")
     if errors:
         print("\nPROBLEMS:", *errors, sep="\n  ")
         sys.exit(1)

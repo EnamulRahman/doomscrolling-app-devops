@@ -78,7 +78,9 @@ The situation, in a few lines.
 > **Takeaway:** the lesson.
 ```
 
-## Build Lab: `lab.md`
+## Build Lab tracks: `labs/NN-name.md`
+
+Each file is one track, with frontmatter `id`, `title`, `icon` and `summary`, then stages:
 
 ```markdown
 # Stage title

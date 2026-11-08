@@ -1,3 +1,10 @@
+---
+id: ecs
+title: ECS on AWS
+icon: 🐳
+summary: Dockerise the Memos example app, build its AWS platform with Terraform (VPC, ALB, ECS Fargate) and automate it with GitHub Actions.
+---
+
 # Set up your tools
 @ icon: 🧰 · time: 30 min
 Every DevOps project starts the same way: the right tools on your machine and a **safe** AWS account. In this lab you'll take **Memos**, an open-source note-taking app, as your example project and build a production platform for it from nothing: **Dockerise** it, provision AWS with **Terraform**, and automate every change with a **CI/CD pipeline**. That's the same path a real team would take.

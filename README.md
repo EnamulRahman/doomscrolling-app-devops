@@ -15,17 +15,17 @@ All content is built into the app: no backend, no accounts and no project of you
 
 | Tab | What it is |
 | --- | --- |
-| 📚 **Learn** | 18 modules from **Beginner → Intermediate → Advanced**: 80 lessons and ~310 short cards, one idea each, with ~80 diagrams, real code from the example and a quick check after every lesson |
-| 🛠️ **Lab** | The **Build Lab**: 15 stages and 58 steps from an empty laptop to the example app running on AWS: Docker → Terraform bootstrap → network → load balancer → ECS → GitHub Actions → break-it drills → production upgrades. Includes a practice terminal and checkpoint questions |
-| 🧠 **Quiz** | ~220 multiple-choice questions from [tech-vault](https://github.com/moabukar/tech-vault) and revision notes, plus every lesson check. Explanations after each answer; missed questions come back |
-| 🎯 **Scenarios** | 35 interview scenarios as multiple choice with feedback on every option. 21 are set in the example project |
+| 📚 **Learn** | 21 modules from **Beginner → Intermediate → Advanced**: 96 lessons and ~400 short cards, one idea each, with ~110 diagrams, real code and a quick check after every lesson. Includes a four-module **Kubernetes** track (core → workloads → config & networking → EKS, Helm, GitOps & monitoring) |
+| 🛠️ **Lab** | Two hands-on tracks with a practice terminal and checkpoint questions:<br>**🐳 ECS on AWS** (15 stages): Dockerise the Memos example → Terraform (VPC, ALB, ECS Fargate) → GitHub Actions → break-it drills → production upgrades.<br>**☸️ EKS assignment** (15 stages): complete the [CoderCo EKS assignment](https://github.com/CoderCo-Learning/eks-assignment-v1): the 2048 game on EKS with Terraform modules, the NGINX Ingress Controller, Prometheus and Grafana, a Terraform pipeline and a Checkov/Trivy/ECR/deploy pipeline, plus Helm, cert-manager, ExternalDNS, Argo CD and clean-up |
+| 🧠 **Quiz** | ~280 multiple-choice questions from [tech-vault](https://github.com/moabukar/tech-vault) and revision notes, plus every lesson check. Explanations after each answer; missed questions come back |
+| 🎯 **Scenarios** | 47 interview scenarios as multiple choice with feedback on every option: 21 set in the ECS example project, 12 on Kubernetes and EKS |
 | 📰 **News** | Live DevOps posts from dev.to and Hacker News (`feed/`) |
 
 ## Use your own values
 
 The example uses placeholders: `your-username` (GitHub), `example.com` / `memos.example.com` (domain), `memos-tfstate-example` (state bucket) and `123456789012` (AWS account). Swap in your own when you build it for real.
 
-> ⚠️ Building the Lab for real creates billable AWS resources (NAT gateways and the load balancer cost money every hour). Set a budget alert first and run `terraform destroy` when you finish practising.
+> ⚠️ Building either Lab track for real creates billable AWS resources (NAT gateways, load balancers and, for EKS, the control plane cost money every hour). Set a budget alert first and run the clean-up steps when you finish practising.
 
 ## Run it
 

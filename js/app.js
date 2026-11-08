@@ -269,7 +269,6 @@
     },
     endCard(m) {
       const i = MODULES.indexOf(m), next = MODULES[i + 1];
-      const stage = LAB.findIndex((s) => (s.modules || "").includes(m.id));
       const node = card(`
         <div class="big center">✅</div><h2 class="center">Module complete</h2>
         <p class="muted center">${esc(m.title)}</p>
@@ -418,26 +417,39 @@
     },
   };
 
-  // ================================================================= BUILD LAB
+  // ================================================================= BUILD LAB (several tracks)
   const lab = {
     feed: $("#view-lab"),
-    stage: Math.min(S.ui.stage || 0, Math.max(0, LAB.length - 1)),
-    key: (si, i) => `${si}.${i}`,
-    stageDone(si) { return LAB[si].steps.filter((_, i) => S.lab[this.key(si, i)]).length; },
-    total() { return LAB.reduce((a, s) => a + s.steps.length, 0); },
-    doneAll() { return Object.keys(S.lab).length; },
+    track: LAB.find((t) => t.id === S.ui.labTrack) || LAB[0],
+    get stages() { return this.track ? this.track.stages : []; },
+    stage: 0,
+    // The first track keeps the original "stage.step" keys so earlier progress isn't lost.
+    key(si, i, t = this.track) { return t === LAB[0] ? `${si}.${i}` : `${t.id}:${si}.${i}`; },
+    stageDone(si, t = this.track) { return t.stages[si].steps.filter((_, i) => S.lab[this.key(si, i, t)]).length; },
+    total(t = this.track) { return t.stages.reduce((a, s) => a + s.steps.length, 0); },
+    doneAll(t = this.track) { return t.stages.reduce((a, s, si) => a + this.stageDone(si, t), 0); },
     toolbar() {
-      const s = LAB[this.stage];
+      const s = this.stages[this.stage];
       if (!s) { toolbar.replaceChildren(); return; }
       toolbar.replaceChildren(stat("labStat", `🛠️ ${this.doneAll()}/${this.total()}`),
-        ...chips([{ id: "s", label: `${s.icon} ${this.stage + 1}. ${s.title}`, wide: true }], "s", () => this.openSheet()),
-        ...chips([{ id: "l", label: "☰ Stages" }], "", () => this.openSheet()));
+        ...chips(LAB.map((t) => ({ id: t.id, label: `${t.icon} ${t.title}` })), this.track.id, (id) => this.setTrack(id)),
+        ...chips([{ id: "s", label: `${this.stage + 1}. ${s.title}`, wide: true }], "", () => this.openSheet()));
     },
-    open(si, stepIdx) { this.stage = S.ui.stage = si; save(); this.render(stepIdx); },
+    setTrack(id) {
+      const t = LAB.find((x) => x.id === id);
+      if (!t || t === this.track) { this.openSheet(); return; }
+      this.track = t; S.ui.labTrack = id; save();
+      this.stage = Math.min((S.ui.labStage || {})[id] || 0, t.stages.length - 1);
+      this.render();
+    },
+    open(si, stepIdx) {
+      this.stage = si; (S.ui.labStage ||= {})[this.track.id] = si; save();
+      this.render(stepIdx);
+    },
     render(stepIdx) {
       this.toolbar();
       const f = this.feed; f.replaceChildren(); f._current = null;
-      const s = LAB[this.stage];
+      const s = this.stages[this.stage];
       if (!s) { f.appendChild(card(`<h2>Lab coming soon</h2>`)); return; }
       f.appendChild(this.cover(s));
       s.steps.forEach((st, i) => f.appendChild(this.stepEl(s, st, i)));
@@ -448,7 +460,7 @@
     cover(s) {
       const si = this.stage, done = this.stageDone(si);
       const node = card(`
-        <div class="meta"><span class="badge accent">Build Lab · Stage ${si + 1} of ${LAB.length}</span>${s.time ? `<span>⏱ ${esc(s.time)}</span>` : ""}<span>${done}/${s.steps.length} steps done</span></div>
+        <div class="meta"><span class="badge accent">${this.track.icon} ${esc(this.track.title)} · Stage ${si + 1} of ${this.stages.length}</span>${s.time ? `<span>⏱ ${esc(s.time)}</span>` : ""}<span>${done}/${s.steps.length} steps done</span></div>
         <div class="big">${s.icon}</div><h2>${esc(s.title)}</h2>
         <div class="body">${renderBlocks(s.intro)}</div>
         <div class="lbl">Steps</div><ol class="lessons">${s.steps.map((st, i) => `<li class="${S.lab[this.key(si, i)] ? "ticked" : ""}">${esc(st.title)}</li>`).join("")}</ol>
@@ -474,28 +486,34 @@
       return node;
     },
     endCard() {
-      const si = this.stage, next = LAB[si + 1];
+      const si = this.stage, next = this.stages[si + 1];
+      const other = LAB.find((t) => t !== this.track);
       const node = card(`<div class="big center">🎉</div><h2 class="center">Stage ${si + 1} complete</h2>
-        ${next ? `<button type="button" class="btn primary" data-next>Next stage: ${next.icon} ${esc(next.title)} →</button>` : `<p class="center">You've built the whole platform: containerised with Docker, provisioned with Terraform and deployed by CI/CD. Now make it yours.</p>`}
+        ${next ? `<button type="button" class="btn primary" data-next>Next stage: ${next.icon} ${esc(next.title)} →</button>` : `<p class="center">You've finished the ${esc(this.track.title)} track. ${esc(this.track.summary || "")}</p>${other ? `<button type="button" class="btn primary" data-track>Try the ${other.icon} ${esc(other.title)} track →</button>` : ""}`}
         <button type="button" class="btn" data-list>☰ All stages</button>`);
       node.querySelector(".card-inner").classList.add("center-col");
       if (next) node.querySelector("[data-next]").onclick = () => this.open(si + 1, 0);
+      const tb = node.querySelector("[data-track]"); if (tb) tb.onclick = () => this.setTrack(other.id);
       node.querySelector("[data-list]").onclick = () => this.openSheet();
       return node;
     },
     openSheet() {
-      openSheet("Build Lab stages", (body) => {
-        body.appendChild(el("p", "muted small", "From an empty laptop to the example app running on AWS: Docker, Terraform and CI/CD, one step at a time."));
-        LAB.forEach((s, si) => {
-          const d = this.stageDone(si), pct = Math.round((d / s.steps.length) * 100);
-          const b = el("button", "mod", `<span class="num">${s.icon}</span><span>${si + 1}. ${esc(s.title)}</span><span class="pct">${d}/${s.steps.length}</span><div class="progress"><i style="width:${pct}%"></i></div>`);
-          b.type = "button"; b.setAttribute("aria-current", String(si === this.stage));
-          b.onclick = () => { sheet.close(); this.open(si); };
-          body.appendChild(b);
+      openSheet("Build Lab", (body) => {
+        LAB.forEach((t) => {
+          body.appendChild(el("h3", "", `${t.icon} ${esc(t.title)} · ${this.doneAll(t)}/${this.total(t)} steps`));
+          if (t.summary) body.appendChild(el("p", "muted small", esc(t.summary)));
+          t.stages.forEach((s, si) => {
+            const d = this.stageDone(si, t), pct = Math.round((d / s.steps.length) * 100);
+            const b = el("button", "mod", `<span class="num">${s.icon}</span><span>${si + 1}. ${esc(s.title)}</span><span class="pct">${d}/${s.steps.length}</span><div class="progress"><i style="width:${pct}%"></i></div>`);
+            b.type = "button"; b.setAttribute("aria-current", String(t === this.track && si === this.stage));
+            b.onclick = () => { sheet.close(); if (t !== this.track) { this.track = t; S.ui.labTrack = t.id; } this.open(si); };
+            body.appendChild(b);
+          });
         });
       });
     },
   };
+  lab.stage = lab.track ? Math.min(((S.ui.labStage || {})[lab.track.id] ?? (lab.track === LAB[0] ? S.ui.stage : 0)) || 0, lab.stages.length - 1) : 0;
 
   // ================================================================= NEWS
   const news = {

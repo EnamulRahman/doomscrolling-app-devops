@@ -1,5 +1,5 @@
 // Offline cache for the app shell and content. Bump VERSION whenever files change.
-const VERSION = "devopsscroll-v3";
+const VERSION = "devopsscroll-v4";
 const FILES = [
   "./", "index.html", "styles.css", "js/app.js", "manifest.webmanifest",
   "data/curriculum.js", "data/mcq.js", "data/scen.js", "data/lab.js",
